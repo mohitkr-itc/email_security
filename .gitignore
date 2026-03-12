@@ -1,0 +1,57 @@
+# Agentic Email Security System – .gitignore
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# --- Virtual Environment ---
+venv/
+.venv/
+env/
+
+# --- Environment ---
+.env
+*.env.local
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Logs ---
+logs/*.log
+logs/*.gz
+
+# --- Models (large binary files) ---
+models/**/*.bin
+models/**/*.pt
+models/**/*.pkl
+models/**/*.h5
+models/**/*.onnx
+
+# --- Datasets (large data files) ---
+datasets/**/*.csv
+datasets/**/*.json
+datasets/**/*.parquet
+datasets_processed/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+docker/data/
+
+# --- Testing ---
+.coverage
+htmlcov/
+.pytest_cache/

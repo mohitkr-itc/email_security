@@ -1,0 +1,125 @@
+# =============================================================================
+# Agentic Email Security System – Docker Compose
+# =============================================================================
+# Orchestrates all services for the phishing detection platform.
+# Actual agent service containers will be added in later phases.
+# =============================================================================
+
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # API Service – FastAPI gateway
+  # ---------------------------------------------------------------------------
+  api_service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: email-security-api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-INFO}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@database:5432/${POSTGRES_DB:-email_security}
+      - REDIS_URL=redis://message_queue:6379/0
+    volumes:
+      - app_logs:/app/logs
+      - app_models:/app/models
+    depends_on:
+      database:
+        condition: service_healthy
+      message_queue:
+        condition: service_healthy
+    networks:
+      - email-security-net
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Agent Services – Placeholder for individual agent containers
+  # ---------------------------------------------------------------------------
+  # In later phases, each agent will run as its own container:
+  #
+  # header_agent:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/Dockerfile.agent
+  #   environment:
+  #     - AGENT_NAME=header_agent
+  #   depends_on:
+  #     - message_queue
+  #
+  # content_agent:
+  #   ...
+  # url_agent:
+  #   ...
+  # attachment_agent:
+  #   ...
+  # sandbox_agent:
+  #   ...
+  # threat_intel_agent:
+  #   ...
+  # user_behavior_agent:
+  #   ...
+
+  # ---------------------------------------------------------------------------
+  # Database – PostgreSQL
+  # ---------------------------------------------------------------------------
+  database:
+    image: postgres:16-alpine
+    container_name: email-security-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-email_security}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - email-security-net
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Message Queue – Redis
+  # ---------------------------------------------------------------------------
+  message_queue:
+    image: redis:7-alpine
+    container_name: email-security-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - email-security-net
+    restart: unless-stopped
+
+# ---------------------------------------------------------------------------
+# Volumes
+# ---------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_logs:
+    driver: local
+  app_models:
+    driver: local
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
+networks:
+  email-security-net:
+    driver: bridge
