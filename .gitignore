@@ -55,3 +55,7 @@ docker/data/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# --- Email Dataset ---
+datasets/email_content/legitimate/spamassassin_ham/*
+datasets/email_content/spam/spamassassin_spam/*
