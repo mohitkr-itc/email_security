@@ -1,4 +1,4 @@
-# Agentic AI Email Security System
+# Agentic AI Email Security system
 
 Production-grade **Agentic AI Cybersecurity System** for **Phishing Email Detection** using multiple independent AI agents, designed for deployment on **Docker** and **Microsoft Azure**.
 
